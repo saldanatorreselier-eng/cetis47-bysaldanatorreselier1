@@ -1,0 +1,235 @@
+<!DOCTYPE html> <!-- Declara que el documento es HTML5 -->
+<html lang="es"> <!-- Define el idioma de la página como español -->
+<head> <!-- Contiene metadatos e información del documento -->
+  <meta charset="UTF-8"> <!-- Indica que se usará codificación UTF-8 (permite acentos y eñes) -->
+  <title>Juego del Ahorcado</title> <!-- Título que aparece en la pestaña del navegador -->
+  <style> <!-- Inicio del bloque de estilos CSS -->
+    body { /* Estilos generales del cuerpo */
+      font-family: Arial, sans-serif; /* Fuente de texto */
+      text-align: center; /* Centra el contenido */
+      background-color: #f0f0f0; /* Fondo gris claro */
+    }
+
+    h1 { /* Estilos del título principal */
+      color: #333; /* Color de texto gris oscuro */
+    }
+
+    #palabra { /* Contenedor de la palabra oculta */
+      font-size: 2em; /* Tamaño grande */
+      letter-spacing: 10px; /* Espaciado entre letras */
+      margin: 20px 0; /* Margen superior e inferior */
+    }
+
+    #letras { /* Contenedor de las letras */
+      margin-top: 20px; /* Separación superior */
+    }
+
+    .letra { /* Estilo de cada letra/botón */
+      display: inline-block; /* Alinea las letras en línea */
+      margin: 5px; /* Espacio entre ellas */
+      padding: 10px; /* Espacio interno */
+      border: 1px solid #333; /* Borde negro */
+      width: 30px; /* Ancho fijo */
+      cursor: pointer; /* Cambia el cursor al pasar */
+      background-color: white; /* Fondo blanco */
+    }
+
+    .letra.usada { /* Letras ya usadas */
+      background-color: #ccc; /* Fondo gris */
+      cursor: not-allowed; /* Cursor bloqueado */
+    }
+
+    #mensaje { /* Mensaje de victoria o derrota */
+      font-size: 1.2em; /* Tamaño del texto */
+      margin-top: 20px; /* Margen superior */
+    }
+
+    #intentos { /* Número de intentos restantes */
+      font-weight: bold; /* Texto en negrita */
+    }
+
+    /* --- DIBUJO DEL AHORCADO --- */
+    #ahorcado { /* Contenedor del dibujo */
+      position: relative; /* Posicionamiento relativo */
+      width: 200px; /* Ancho del área del dibujo */
+      height: 250px; /* Alto del área del dibujo */
+      margin: 30px auto; /* Centrado horizontal */
+      background-color: #f0f0f0; /* Fondo igual al cuerpo */
+    }
+
+    .linea { /* Líneas del soporte */
+      position: absolute; /* Posición fija dentro del contenedor */
+      background-color: #333; /* Color negro */
+    }
+
+    /* Estructura base */
+    .base { bottom: 0; left: 20px; width: 160px; height: 5px; } /* Base del ahorcado */
+    .poste { bottom: 0; left: 40px; width: 5px; height: 200px; } /* Poste vertical */
+    .viga { top: 0; left: 40px; width: 100px; height: 5px; } /* Barra superior */
+    .cuerda { top: 0; left: 135px; width: 2px; height: 25px; } /* Cuerda donde cuelga el personaje */
+
+    /* Partes del cuerpo */
+    .cabeza {
+      position: absolute; /* Posición dentro del contenedor */
+      top: 25px; left: 120px; /* Posición exacta */
+      width: 30px; height: 30px; /* Tamaño del círculo */
+      border: 3px solid #333; /* Borde negro */
+      border-radius: 50%; /* Forma circular */
+      display: none; /* Oculta al inicio */
+    }
+
+    .cuerpo {
+      position: absolute;
+      top: 55px; left: 135px;
+      width: 2px; height: 50px;
+      background-color: #333;
+      display: none;
+    }
+
+    .brazo-izq, .brazo-der, .pierna-izq, .pierna-der { /* Brazos y piernas */
+      position: absolute;
+      width: 2px; height: 30px;
+      background-color: #333;
+      display: none;
+    }
+
+    .brazo-izq { top: 60px; left: 135px; transform: rotate(-45deg); transform-origin: top; } /* Brazo izquierdo */
+    .brazo-der { top: 60px; left: 135px; transform: rotate(45deg); transform-origin: top; } /* Brazo derecho */
+    .pierna-izq { top: 100px; left: 135px; transform: rotate(45deg); transform-origin: top; } /* Pierna izquierda */
+    .pierna-der { top: 100px; left: 135px; transform: rotate(-45deg); transform-origin: top; } /* Pierna derecha */
+
+    /* Botón de reinicio */
+    #reiniciar {
+      display: none; /* Oculto hasta que termine el juego */
+      margin-top: 20px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50; /* Verde */
+      color: white;
+      cursor: pointer;
+    }
+
+    #reiniciar:hover {
+      background-color: #45a049; /* Verde más oscuro al pasar */
+    }
+  </style> <!-- Fin del bloque CSS -->
+</head>
+<body> <!-- Inicio del cuerpo visible -->
+  <h1>🎯 Juego del Ahorcado 🎯</h1> <!-- Título principal -->
+
+  <div id="ahorcado"> <!-- Contenedor del dibujo del ahorcado -->
+    <!-- Estructura -->
+    <div class="linea base"></div> <!-- Base -->
+    <div class="linea poste"></div> <!-- Poste -->
+    <div class="linea viga"></div> <!-- Barra superior -->
+    <div class="linea cuerda"></div> <!-- Cuerda -->
+
+    <!-- Partes del cuerpo -->
+    <div class="cabeza"></div> <!-- Cabeza -->
+    <div class="cuerpo"></div> <!-- Cuerpo -->
+    <div class="brazo-izq"></div> <!-- Brazo izquierdo -->
+    <div class="brazo-der"></div> <!-- Brazo derecho -->
+    <div class="pierna-izq"></div> <!-- Pierna izquierda -->
+    <div class="pierna-der"></div> <!-- Pierna derecha -->
+  </div>
+
+  <div id="palabra"></div> <!-- Muestra la palabra oculta -->
+  <div>Intentos restantes: <span id="intentos"></span></div> <!-- Contador de intentos -->
+
+  <div id="letras"></div> <!-- Contenedor de letras clicables -->
+  <div id="mensaje"></div> <!-- Mensaje final -->
+
+  <button id="reiniciar">🔁 Reintentar</button> <!-- Botón para reiniciar el juego -->
+
+  <script> <!-- Inicio del código JavaScript -->
+    const palabras = ["JAVASCRIPT", "AHORCADO", "PROGRAMAR", "JUEGO", "HTML", "DIV", "resorte"]; // Lista de palabras posibles
+    const palabraSecreta = palabras[Math.floor(Math.random() * palabras.length)]; // Selecciona una palabra al azar
+    const intentosMax = 6; // Máximo de errores permitidos
+    let intentos = intentosMax; // Contador actual de intentos
+    let palabraAdivinada = Array(palabraSecreta.length).fill("_"); // Representa letras con guiones
+    const letrasUsadas = []; // Guarda letras ya elegidas
+
+    const palabraDiv = document.getElementById("palabra"); // Referencia al div de palabra
+    const letrasDiv = document.getElementById("letras"); // Referencia al div de letras
+    const mensajeDiv = document.getElementById("mensaje"); // Referencia al mensaje
+    const intentosSpan = document.getElementById("intentos"); // Referencia al contador
+    const btnReiniciar = document.getElementById("reiniciar"); // Referencia al botón reiniciar
+
+    intentosSpan.textContent = intentos; // Muestra intentos restantes
+    palabraDiv.textContent = palabraAdivinada.join(" "); // Muestra guiones en pantalla
+
+    // Crear botones de letras
+    const letras = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ".split(""); // Arreglo con todas las letras
+    letras.forEach(letra => { // Recorre cada letra
+      const btn = document.createElement("div"); // Crea un botón
+      btn.textContent = letra; // Asigna la letra al botón
+      btn.classList.add("letra"); // Agrega clase CSS
+      btn.addEventListener("click", () => jugar(letra, btn)); // Añade evento al hacer clic
+      letrasDiv.appendChild(btn); // Agrega el botón al contenedor
+    });
+
+    // Partes del cuerpo
+    const partes = [
+      document.querySelector(".cabeza"), // Cabeza
+      document.querySelector(".cuerpo"), // Cuerpo
+      document.querySelector(".brazo-izq"), // Brazo izquierdo
+      document.querySelector(".brazo-der"), // Brazo derecho
+      document.querySelector(".pierna-izq"), // Pierna izquierda
+      document.querySelector(".pierna-der")  // Pierna derecha
+    ];
+
+    function jugar(letra, btn) { // Función principal del juego
+      letra = letra.toUpperCase(); // Convierte la letra a mayúscula
+      if (letrasUsadas.includes(letra) || intentos <= 0) return; // Evita repetir o seguir si se acabaron los intentos
+
+      letrasUsadas.push(letra); // Guarda la letra usada
+      const boton = [...document.querySelectorAll(".letra")].find(b => b.textContent === letra); // Busca el botón correspondiente
+      if (boton) boton.classList.add("usada"); // Lo marca como usado
+
+      if (palabraSecreta.includes(letra)) { // Si la letra está en la palabra
+        for (let i = 0; i < palabraSecreta.length; i++) { // Recorre la palabra
+          if (palabraSecreta[i] === letra) palabraAdivinada[i] = letra; // Reemplaza el guion por la letra correcta
+        }
+        palabraDiv.textContent = palabraAdivinada.join(" "); // Actualiza en pantalla
+      } else {
+        intentos--; // Resta un intento
+        intentosSpan.textContent = intentos; // Actualiza número de intentos
+        mostrarParte(); // Muestra parte del cuerpo
+      }
+
+      if (!palabraAdivinada.includes("_")) { // Si ya no hay guiones
+        mensajeDiv.textContent = "🎉 ¡Ganaste! La palabra era: " + palabraSecreta; // Mensaje de victoria
+        finDelJuego(); // Termina el juego
+      } else if (intentos === 0) { // Si no quedan intentos
+        mensajeDiv.textContent = "💀 Perdiste... La palabra era: " + palabraSecreta; // Mensaje de derrota
+        finDelJuego(); // Termina el juego
+      }
+    }
+
+    function mostrarParte() { // Muestra una parte del cuerpo según fallos
+      const index = intentosMax - intentos - 1; // Calcula cuántas partes mostrar
+      if (partes[index]) partes[index].style.display = "block"; // Muestra la parte correspondiente
+    }
+
+    function finDelJuego() { // Función para finalizar el juego
+      document.querySelectorAll(".letra").forEach(b => b.classList.add("usada")); // Desactiva todas las letras
+      btnReiniciar.style.display = "inline-block"; // Muestra botón de reinicio
+    }
+
+    // Reiniciar juego
+    btnReiniciar.addEventListener("click", () => location.reload()); // Recarga la página al reiniciar
+
+    // Permitir escribir letras con el teclado
+    document.addEventListener("keydown", e => { // Detecta teclas presionadas
+      const letra = e.key.toUpperCase(); // Convierte a mayúscula
+      if (/^[A-ZÑ]$/.test(letra)) jugar(letra); // Solo acepta letras válidas
+    });
+  </script> <!-- Fin del script -->
+
+  <a href="analisis.html" target="_blank">analisis</a> <!-- Enlace a otra página -->
+  <br> <!-- Salto de línea -->
+  <a href="index.html" target="_blank">Ley de hooke</a> <!-- Otro enlace -->
+</body>
+</html> <!-- Fin del documento -->
